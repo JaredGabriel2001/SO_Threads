@@ -5,4 +5,4 @@ No cenario desta aplicação, estamos simulando que 2 jogadores podem solicitar 
   Quando o entregador está na base, está disponivel para levar o item para o proximo jogador;
   Enquanto está levando um item ou voltando para a base, o entregador fica indisponivel para realizar outras entregas, o processo de solicitar uma entrega só ocorre quando ele está na base.
 
-Foi utilizado Mutex para lidar com a condição de disputa, e o programa após ser executado roda de forma continua, para encerra-lo basta dar o comando CTRL + C no terminal.
+Foi utilizado Mutex para lidar com a condição de disputa, e o programa após ser executado roda de forma continua, para encerra-lo basta digitar "0" quando for solicitado qual jogador deseja utilizar o burrinho (entregador) no terminal.
