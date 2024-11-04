@@ -31,7 +31,7 @@ void* input_usuario(void* arg) {
     pthread_exit(NULL);
 }
 
-//funcao que simula o pedido do burrinho pelos jogadores
+//funcao que simula o pedido do burrinho (entregador) pelos jogadores
 void* requisitar_burrinho(void* jogador_id) {
     int id = *(int*)jogador_id;
 
