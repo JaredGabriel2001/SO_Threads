@@ -8,55 +8,66 @@ pthread_mutex_t burrinho_lock = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t burrinho_disponivel_cond = PTHREAD_COND_INITIALIZER;
 int burrinho_disponivel = 1;
 int jogador_solicitante = 0;
+int executando = 1; 
 
 //funcao que informa qual jogador deseja solicitar o burrinho
 void* input_usuario(void* arg) {
-    while (1) {
-        //burrinho está na base e disponivel?
+    while (executando) {
         if (burrinho_disponivel) {
-            printf("Digite o jogador (1 ou 2) que quer solicitar o burrinho: ");
+            printf("Digite o jogador (1 ou 2) que quer solicitar o burrinho ou 0 para sair: ");
             scanf("%d", &jogador_solicitante);
 
             if (jogador_solicitante == 1 || jogador_solicitante == 2) {
-                //notifica as threads dos jogadores que um pedido foi feito
+                pthread_cond_broadcast(&burrinho_disponivel_cond);
+            } else if (jogador_solicitante == 0) {
+                executando = 0; 
                 pthread_cond_broadcast(&burrinho_disponivel_cond);
             } else {
-                printf("Entrada inválida! Por favor, insira 1 ou 2.\n");
+                printf("Entrada invalida! Por favor, insira 1, 2 ou 0 para sair.\n");
             }
         }
         sleep(1);
     }
+    pthread_exit(NULL);
 }
 
 //funcao que simula o pedido do burrinho pelos jogadores
 void* requisitar_burrinho(void* jogador_id) {
     int id = *(int*)jogador_id;
 
-    while (1) {
+    while (executando) {
         pthread_mutex_lock(&burrinho_lock);
-        while (burrinho_disponivel == 0 || jogador_solicitante != id) { //aguarda até que o burrinho esteja disponível e o jogador atual seja o solicitante
+        while (burrinho_disponivel == 0 || jogador_solicitante != id) {
+            if (!executando) {
+                pthread_mutex_unlock(&burrinho_lock);
+                pthread_exit(NULL); //sai da thread se executando for 0
+            }
             pthread_cond_wait(&burrinho_disponivel_cond, &burrinho_lock);
         }
 
-        //burrinho ocupado, ou seja, levando itens ate o jogador, ou voltando para base
+        if (!executando) { 
+            pthread_mutex_unlock(&burrinho_lock);
+            pthread_exit(NULL); 
+        }
+
+        // O burrinho agora está ocupado
         burrinho_disponivel = 0;
         int tempo_ida = (rand() % 3) + 2;
         int tempo_volta = (rand() % 3) + 2;
 
         printf("Jogador %d solicitou o burrinho.\n", id);
         printf("Burrinho indo para o Jogador %d. Tempo de viagem: %d segundos.\n", id, tempo_ida);
-        sleep(tempo_ida); //tempo de ida até o jogador
+        sleep(tempo_ida);
 
         printf("Burrinho entregou o item ao Jogador %d.\n", id);
         printf("Burrinho retornando para a base. Tempo de retorno: %d segundos.\n", tempo_volta);
-        sleep(tempo_volta); //tempo de retorno para a base
+        sleep(tempo_volta);
 
-        //burrinho está na base e disponivel para levar mais itens
-        printf("Burrinho está de volta à base e disponível novamente.\n");
+        printf("Burrinho esta de volta a base e disponivel novamente.\n");
         burrinho_disponivel = 1;
-        jogador_solicitante = 0; //reseta o solicitante
+        jogador_solicitante = 0;
 
-        pthread_cond_broadcast(&burrinho_disponivel_cond); //notifica a disponibilidade do burrinho
+        pthread_cond_broadcast(&burrinho_disponivel_cond);
         pthread_mutex_unlock(&burrinho_lock);
     }
 
