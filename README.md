@@ -1,3 +1,4 @@
+Este trabalho foi realizado por Gabriel Jared, Gabriel Neneve e Gabriel Pereira.
 Trabalho da disciplina de SO, que tem o foco em implementar uma aplicação multithread com pelo menos uma condição de disputa.
 
 No cenario desta aplicação, estamos simulando que 2 jogadores podem solicitar itens pra um estregador (no caso, um "burrinho" semelhante ao do Dota 2), o cenario foi adaptado da seguinte forma: 
